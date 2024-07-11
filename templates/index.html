@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Video</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h1>Stream Video</h1>
+    <video id="videoPlayer" width="640" height="480" controls autoplay></video>
+    <script>
+        var video = document.getElementById('videoPlayer');
+        var mediaSource = new MediaSource();
+        video.src = URL.createObjectURL(mediaSource);
+
+        mediaSource.addEventListener('sourceopen', function () {
+            var socket = io.connect('http://' + document.domain + ':' + location.port);
+            var sourceBuffer = mediaSource.addSourceBuffer('video/mp2t; codecs="avc1.42E01E, mp4a.40.2"');
+
+            socket.on('video_stream', function (data) {
+                var uint8Array = new Uint8Array(data);
+                sourceBuffer.appendBuffer(uint8Array);
+            });
+
+            socket.emit('start_stream');
+        }, false);
+    </script>
+</body>
+</html>

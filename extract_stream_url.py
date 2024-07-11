@@ -1,4 +1,4 @@
-# extract_stream_url.py
+# extract_stream_url.py (selenium을 활용한 동적 크롤링)
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
