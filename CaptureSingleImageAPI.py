@@ -15,7 +15,7 @@ from selenium.webdriver.chrome.options import Options
 요청을 보낼 때 응답이 되돌아오는 데 시간이 걸리는 이유는 Selenium을 사용하여 페이지에서 비디오 태그(비디오 URL)에 접근하는 과정과 OpenCV를 사용하여 비디오 프레임을 캡처하는 과정이 시간이 많이 소요되기 때문이다.
 
 가능한 최적화 방법:
-비디오 URL 캐싱: 비디오 URL을 매번 가져오지 않고 한 번 가져온 후 일정 시간 동안 캐싱한다.. 이렇게 하면 매번 Selenium을 사용하지 않아도 된다.
+비디오 URL 캐싱: 비디오 URL을 매번 가져오지 않고 한 번 가져온 후 일정 시간 동안 캐싱한다.. 이렇게 하면 매번 Selenium을 사용하지 않아도 된다. (경찰청 제공 CCTV 송출 영상은 30초마다 변경됨)
 비디오 프레임 캡처 최적화: 비디오 URL을 얻는 시간이 줄어들면 프레임 캡처에만 집중할 수 있게 된다.
 
 정확히 말하면 비디오 URL이 자주 바뀌지 않는 한 일정 시간 동안 캐싱된 URL을 사용함으로써 
@@ -31,6 +31,7 @@ url_cache_duration = 300  # URL 캐시 지속 시간 (초)
 
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
+    print(f"Created directory {output_dir}")
 
 def get_timestamp():
     return time.strftime("%Y%m%d_%H%M%S")  # 현재 시간 반환
@@ -127,5 +128,13 @@ def upload_image():
 
     return jsonify({'message': f'Image saved to {filepath}'}), 200
 
+'''
+본 모듈이 import 되면 name이 main이 아니라 모듈명이 되고, import 되지 않고 실행되면 name이 main이 된다.
+'''
 if __name__ == "__main__":
+    # 서버 시작 전에 비디오 URL을 미리 가져옴
+    print("Fetching initial video URL...")
+    video_url = get_stream_url(page_url)
+    last_fetched_time = time.time()  # 서버 시작 시 마지막으로 가져온 시간 업데이트
+    print(f"Initial video URL: {video_url}")
     app.run(host='0.0.0.0', port=5000)
